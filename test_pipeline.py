@@ -1,7 +1,7 @@
 __author__ = 'dcl9'
 
 import unittest
-from main import Step
+from pipeline import Step
 
 class StepTestCase(unittest.TestCase):
 
