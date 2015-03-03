@@ -1,0 +1,11 @@
+name:
+  MMAP Pipeline
+host:
+steps: # An ordered list of steps
+  - 
+    image: "dleehr/go-blast"
+    infiles:
+      CONT_INPUT_ORFS_FILE: '/Users/dcl9/Data/mmap/example/MMAP_example.glimmer'
+      CONT_INPUT_BLAST_DB: '/Users/dcl9/Data/go-blastdb/go-seqdb'
+    outfiles:
+      CONT_OUTPUT_BLAST_RESULTS: '/Users/dcl9/Data/output/pipelined-blast.csv'

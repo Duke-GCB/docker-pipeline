@@ -1,29 +1,8 @@
 from docker.client import Client
 from docker.utils import kwargs_from_env
+from collections import defaultdict
 import os
-import sys
-
-
-def make_prototype_pipeline():
-    '''
-    A sample pipeline with one step
-    :return: dictionary constituting a pipeline
-    '''
-    pipeline = dict()
-    pipeline['host'] = ''
-    pipeline['steps'] = list()
-    step = dict()
-    step['image'] = 'dleehr/go-blast'
-    step['command'] = None
-    step['infiles'] = {
-        'CONT_INPUT_ORFS_FILE': '/Users/dcl9/Data/mmap/example/MMAP_example.glimmer',
-        'CONT_INPUT_BLAST_DB': '/Users/dcl9/Data/go-blastdb/go-seqdb'
-    }
-    step['outfiles'] = {
-        'CONT_OUTPUT_BLAST_RESULTS': '/Users/dcl9/Data/output/pipelined-blast.csv'
-    }
-    pipeline['steps'].append(step)
-    return pipeline
+import yaml
 
 
 class Pipeline():
@@ -32,6 +11,24 @@ class Pipeline():
         self.steps = steps
         self.debug = debug
         self.client = Pipeline.get_client()
+
+    @classmethod
+    def from_dict(cls, pipeline_dict):
+        pipeline_dict = defaultdict(lambda: None, pipeline_dict)
+        step_dicts = pipeline_dict['steps']
+        steps = list()
+        for step_dict in step_dicts:
+            step = Step.from_dict(step_dict)
+            steps.append(step)
+        host=pipeline_dict['host']
+        return cls(host=host, steps=steps, debug=True)
+
+    @classmethod
+    def from_yaml(cls, file):
+        pipeline_dict = None
+        with open(file, 'r') as yamlfile:
+            pipeline_dict = yaml.load(yamlfile)
+        return cls.from_dict(pipeline_dict)
 
     @classmethod
     def get_client(cls):
@@ -45,8 +42,8 @@ class Pipeline():
         self.results = list()
         for each_step in self.steps:
             container = self.create_container(each_step)
-            self.start_container(container, step)
-            self.save_results(container, step)
+            self.start_container(container, each_step)
+            self.save_results(container, each_step)
             self.remove_container(container)
         if self.debug:
             print self.results
@@ -79,6 +76,8 @@ class Pipeline():
     def remove_container(self, container):
         self.client.wait(container)
         self.client.remove_container(container)
+
+
 class Step():
     def __init__(self, image, command=None, infiles={}, outfiles={}):
         if image is None:
@@ -106,6 +105,22 @@ class Step():
         self.volumes_dict = dict(self.infiles_volumes_dict.items() + self.outfiles_volumes_dict.items())
 
         self.environment = self.generate_environment()
+
+    @classmethod
+    def from_dict(cls, step_dict):
+        step_dict = defaultdict(lambda: None, step_dict)
+        step = cls(image=step_dict['image'],
+                   command=step_dict['command'],
+                   infiles=step_dict['infiles'],
+                   outfiles=step_dict['outfiles'])
+        return step
+
+    @classmethod
+    def from_yaml(cls, file):
+        step_dict = None
+        with open(file, 'r') as yamlfile:
+            step_dict = yaml.load(yamlfile)
+        return cls.from_dict(step_dict)
 
     def get_volumes(self):
         return sorted(self.volumes_dict.keys())
@@ -180,20 +195,12 @@ class Step():
         # Output: 'CONT_INPUT_BLAST_DB': '/mnt/input_0/go-blastdb'
         for label, filename in self.allfiles.iteritems():
             environment[label] = self.translate_local_to_remote(filename)
-
-        # Need a mapping of local file to volume file
         return environment
 
 
-if __name__ == '__main__':
-    pipeline_dict = make_prototype_pipeline()
-    step_dicts = pipeline_dict['steps']
-    steps = list()
-    for step_dict in step_dicts:
-        # self, image, command=None, infiles={}, outfiles={}):
-        step = Step(image=step_dict['image'], command=step_dict['command'], infiles=step_dict['infiles'],
-                    outfiles=step_dict['outfiles'])
-        steps.append(step)
+def main(yaml_file):
+    p = Pipeline.from_yaml(yaml_file)
+    p.run()
 
-    pipeline = Pipeline(None, steps=steps, debug=True)
-    pipeline.run()
+if __name__ == '__main__':
+    main('mmap.yaml')
