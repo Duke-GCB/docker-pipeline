@@ -6,6 +6,7 @@ from pipeline import Step
 class StepTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.name = 'Test Step'
         self.image = 'docker/image'
         self.infiles = {'INPUT_FILE_0': '/path/to/readonly0/input_file.ext', 'INPUT_FILE_1': '/path/to/readonly1/input_file'}
         self.outfiles = {'OUTPUT_FILE': '/path/to/readwrite/output_file.ext'}
@@ -22,25 +23,27 @@ class StepTestCase(unittest.TestCase):
         self.expected_volumes = ['/mnt/input_0', '/mnt/input_1', '/mnt/output_0']
 
     def test_create_step(self):
-        step = Step(self.image)
+        step = Step(self.name, self.image)
         self.assertIsNotNone(step)
 
-    def test_create_requires_image(self):
+    def test_create_requires_name_image(self):
         self.assertRaises(TypeError, Step)
         self.assertRaises(TypeError, Step, None)
+        self.assertRaises(TypeError, Step, None, self.image)
+        self.assertRaises(TypeError, Step, self.name, None)
 
     def test_binds(self):
-        step = Step(self.image, infiles=self.infiles, outfiles=self.outfiles)
+        step = Step(self.name, self.image, infiles=self.infiles, outfiles=self.outfiles)
         self.assertIsNotNone(step.binds)
         self.assertEqual(step.binds, self.expected_binds)
 
     def test_environment(self):
-        step = Step(self.image, infiles=self.infiles, outfiles=self.outfiles)
+        step = Step(self.name, self.image, infiles=self.infiles, outfiles=self.outfiles)
         self.assertIsNotNone(step.environment)
         self.assertEqual(step.environment, self.expected_environment)
 
     def test_volumes(self):
-        step = Step(self.image, infiles=self.infiles, outfiles=self.outfiles)
+        step = Step(self.name, self.image, infiles=self.infiles, outfiles=self.outfiles)
         self.assertEqual(step.get_volumes(), self.expected_volumes)
 
 
