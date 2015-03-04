@@ -12,7 +12,7 @@ class Pipeline():
         self.debug = debug
         self.client = Pipeline.get_client()
         self.remove_containers = False
-        self.results = list()
+        self.result = None
 
     def __unicode__(self):
         return u'<Pipeline - steps: {} host: {}, debug: {} >'.format(len(self.steps), self.host, self.debug)
@@ -28,7 +28,7 @@ class Pipeline():
         for step_dict in step_dicts:
             step = Step.from_dict(step_dict)
             steps.append(step)
-        host=pipeline_dict['host']
+        host = pipeline_dict['host']
         return cls(host=host, steps=steps, debug=True)
 
     @classmethod
@@ -49,15 +49,15 @@ class Pipeline():
         for each_step in self.steps:
             container = self.create_container(each_step)
             self.start_container(container, each_step)
-            result = self.get_result(container, each_step)
-            self.results.append(result)
+            self.result = self.get_result(container, each_step)
             self.finish_container(container)
-            if result['code'] != 0:
+            if self.result['code'] != 0:
                 # Container exited with nonzero status code
-                print "Error: step exited with code {}".format(result['code'])
+                print "Error: step exited with code {}".format(self.result['code'])
+                # Pipeline breaks if nonzero result is encountered
                 break
         if self.debug:
-            print 'Results: {}'.format(self.results)
+            print 'Result: {}'.format(self.result)
 
     def create_container(self, step):
         if self.debug:
