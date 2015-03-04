@@ -6,7 +6,10 @@ import yaml
 
 
 class Pipeline():
-    def __init__(self, host=None, steps=[], debug=False):
+    def __init__(self, name, host=None, steps=[], debug=False):
+        if name is None:
+            raise TypeError('Must provide a name for the pipeline')
+        self.name = name
         self.host = host
         self.steps = steps
         self.debug = debug
@@ -15,7 +18,7 @@ class Pipeline():
         self.result = None
 
     def __unicode__(self):
-        return u'<Pipeline - steps: {} host: {}, debug: {} >'.format(len(self.steps), self.host, self.debug)
+        return u'<Pipeline: {} - steps: {} host: {}, debug: {} >'.format(self.name, len(self.steps), self.host, self.debug)
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -28,8 +31,9 @@ class Pipeline():
         for step_dict in step_dicts:
             step = Step.from_dict(step_dict)
             steps.append(step)
+        name = pipeline_dict['name']
         host = pipeline_dict['host']
-        return cls(host=host, steps=steps, debug=True)
+        return cls(name, host=host, steps=steps, debug=True)
 
     @classmethod
     def from_yaml(cls, file):
@@ -46,11 +50,13 @@ class Pipeline():
         return client
 
     def run(self):
+        if self.debug:
+            print "Running pipeline: {}".format(self)
         for each_step in self.steps:
             container = self.create_container(each_step)
             self.start_container(container, each_step)
             self.result = self.get_result(container, each_step)
-            self.finish_container(container)
+            self.finish_container(container, each_step)
             if self.result['code'] != 0:
                 # Container exited with nonzero status code
                 print "Error: step exited with code {}".format(self.result['code'])
@@ -61,7 +67,7 @@ class Pipeline():
 
     def create_container(self, step):
         if self.debug:
-            print 'Creating container for step: {}'.format(self)
+            print 'Creating container for step: {}'.format(step)
             print 'Image: {}'.format(step.image)
             print 'Volumes: {}'.format(step.get_volumes())
             print 'Environment: {}'.format(step.environment)
@@ -73,7 +79,7 @@ class Pipeline():
 
     def start_container(self, container, step):
         if self.debug:
-            print 'Running container for step {}'.format(self)
+            print 'Running container for step {}'.format(step)
             print 'Binds: {}'.format(step.binds)
         # client.start does not return anything
         self.client.start(container, binds=step.binds)
@@ -91,17 +97,20 @@ class Pipeline():
         result['code'] = code
         return result
 
-    def finish_container(self, container):
+    def finish_container(self, container, step):
         if self.debug:
-            print 'Cleaning up container for step {}'.format(self)
+            print 'Cleaning up container for step {}'.format(step)
         if self.remove_containers:
             self.client.remove_container(container)
 
 
 class Step():
-    def __init__(self, image, command=None, parameters=None, infiles={}, outfiles={}):
+    def __init__(self, name, image, command=None, parameters=None, infiles={}, outfiles={}):
         if image is None:
             raise TypeError('Must provide an image name for the step')
+        if name is None:
+            raise TypeError('Must provide a name for the pipeline')
+        self.name = name
         self.image = image
         self.command = command
         self.infiles = infiles
@@ -131,7 +140,7 @@ class Step():
             self.environment = dict(self.environment.items() + parameters.items())
 
     def __unicode__(self):
-        return u'<Step - Image: {}, Command: {}, {} in {} out>'.format(self.image, self.command, len(self.infiles), len(self.outfiles))
+        return u'<Step: {} - Image: {}, Command: {}, {}i,{}o>'.format(self.name, self.image, self.command, len(self.infiles), len(self.outfiles))
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -139,7 +148,8 @@ class Step():
     @classmethod
     def from_dict(cls, step_dict):
         step_dict = defaultdict(lambda: None, step_dict)
-        step = cls(image=step_dict['image'],
+        step = cls(name=step_dict['name'],
+                   image=step_dict['image'],
                    command=step_dict['command'],
                    parameters=step_dict['parameters'],
                    infiles=step_dict['infiles'],
