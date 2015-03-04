@@ -11,6 +11,7 @@ class Pipeline():
         self.steps = steps
         self.debug = debug
         self.client = Pipeline.get_client()
+        self.results = list()
 
     @classmethod
     def from_dict(cls, pipeline_dict):
@@ -25,7 +26,6 @@ class Pipeline():
 
     @classmethod
     def from_yaml(cls, file):
-        pipeline_dict = None
         with open(file, 'r') as yamlfile:
             pipeline_dict = yaml.load(yamlfile)
         return cls.from_dict(pipeline_dict)
@@ -39,7 +39,6 @@ class Pipeline():
         return client
 
     def run(self):
-        self.results = list()
         for each_step in self.steps:
             container = self.create_container(each_step)
             self.start_container(container, each_step)
@@ -79,7 +78,7 @@ class Pipeline():
 
 
 class Step():
-    def __init__(self, image, command=None, infiles={}, outfiles={}):
+    def __init__(self, image, command=None, parameters=None, infiles={}, outfiles={}):
         if image is None:
             raise TypeError('Must provide an image name for the step')
         self.image = image
@@ -98,19 +97,25 @@ class Step():
         self.outfiles_volumes_dict = Step.make_volumes_dict(outfiles_dirnames, '/mnt/output')
 
         self.binds = self.generate_binds()
-        # Structures for environment are simplified by having input and output together
 
+        # Structures for environment are simplified by having input and output together
         self.allfiles = dict(infiles.items() + outfiles.items())
         self.dirnames_dict = dict(self.infiles_dirnames_dict.items() + self.outfiles_dirnames_dict.items())
         self.volumes_dict = dict(self.infiles_volumes_dict.items() + self.outfiles_volumes_dict.items())
 
-        self.environment = self.generate_environment()
+        # Environment variables passed to container execution must reference file paths from within the container
+        # Also pass along parameters as environment variables
+        self.environment = self.generate_file_parameters()
+        if parameters is not None:
+            self.environment = dict(self.environment.items() + parameters.items())
+
 
     @classmethod
     def from_dict(cls, step_dict):
         step_dict = defaultdict(lambda: None, step_dict)
         step = cls(image=step_dict['image'],
                    command=step_dict['command'],
+                   parameters=step_dict['parameters'],
                    infiles=step_dict['infiles'],
                    outfiles=step_dict['outfiles'])
         return step
@@ -189,7 +194,7 @@ class Step():
                 break
         return remote_path
 
-    def generate_environment(self):
+    def generate_file_parameters(self):
         environment = dict()
         # Input: 'CONT_INPUT_BLAST_DB': '/Users/dcl9/Data/go-blastdb'
         # Output: 'CONT_INPUT_BLAST_DB': '/mnt/input_0/go-blastdb'
