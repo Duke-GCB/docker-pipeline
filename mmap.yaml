@@ -2,6 +2,14 @@ name:
   MMAP Pipeline
 host:
 steps: # An ordered list of steps
+  -
+    image: "dleehr/genovo:"
+    infiles:
+      CONT_INPUT_READS_FILE: '/Users/dcl9/Data/mmap-docker/raw/MMAP_example.fasta'
+    outfiles:
+      CONT_OUTPUT_CONTIGS_FILE: '/Users/dcl9/Data/mmap-docker/assembled/MMAP_example-contigs.fasta'
+    parameters:
+      CONT_INPUT_ASSEMBLE_ITERATIONS: '10'
   - 
     image: "dleehr/go-blast"
     infiles:
