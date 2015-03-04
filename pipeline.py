@@ -11,7 +11,14 @@ class Pipeline():
         self.steps = steps
         self.debug = debug
         self.client = Pipeline.get_client()
+        self.remove_containers = False
         self.results = list()
+
+    def __unicode__(self):
+        return u'<Pipeline - steps: {} host: {}, debug: {} >'.format(len(self.steps), self.host, self.debug)
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
 
     @classmethod
     def from_dict(cls, pipeline_dict):
@@ -42,14 +49,19 @@ class Pipeline():
         for each_step in self.steps:
             container = self.create_container(each_step)
             self.start_container(container, each_step)
-            self.save_results(container, each_step)
-            self.remove_container(container)
+            result = self.get_result(container, each_step)
+            self.results.append(result)
+            self.finish_container(container)
+            if result['code'] != 0:
+                # Container exited with nonzero status code
+                print "Error: step exited with code {}".format(result['code'])
+                break
         if self.debug:
-            print self.results
+            print 'Results: {}'.format(self.results)
 
     def create_container(self, step):
         if self.debug:
-            print 'Creating container for step'
+            print 'Creating container for step: {}'.format(self)
             print 'Image: {}'.format(step.image)
             print 'Volumes: {}'.format(step.get_volumes())
             print 'Environment: {}'.format(step.environment)
@@ -61,20 +73,29 @@ class Pipeline():
 
     def start_container(self, container, step):
         if self.debug:
-            print 'Running container for step'
+            print 'Running container for step {}'.format(self)
             print 'Binds: {}'.format(step.binds)
         # client.start does not return anything
         self.client.start(container, binds=step.binds)
 
-    def save_results(self, container, step):
-        # Get events?
-        # Get logs
-        logs = self.client.logs(container)
-        self.results.append({'image': step.image, 'logs': logs})
+    def get_result(self, container, step):
+        logs = self.client.attach(container, stream=True, logs=True)
+        result = {'image': step.image}
+        all_logs = str()
+        for log in logs:
+            all_logs = all_logs + log
+            if self.debug:
+                print log
+        # Store the return value
+        code = self.client.wait(container)
+        result['code'] = code
+        return result
 
-    def remove_container(self, container):
-        self.client.wait(container)
-        self.client.remove_container(container)
+    def finish_container(self, container):
+        if self.debug:
+            print 'Cleaning up container for step {}'.format(self)
+        if self.remove_containers:
+            self.client.remove_container(container)
 
 
 class Step():
@@ -109,6 +130,11 @@ class Step():
         if parameters is not None:
             self.environment = dict(self.environment.items() + parameters.items())
 
+    def __unicode__(self):
+        return u'<Step - Image: {}, Command: {}, {} in {} out>'.format(self.image, self.command, len(self.infiles), len(self.outfiles))
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
 
     @classmethod
     def from_dict(cls, step_dict):
