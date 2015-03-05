@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from docker.client import Client
 from docker.utils import kwargs_from_env
 from collections import defaultdict
