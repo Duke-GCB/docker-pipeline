@@ -12,10 +12,17 @@ steps: # An ordered list of steps
     parameters:
       CONT_INPUT_ASSEMBLE_ITERATIONS: '10'
   - 
+    name: "Identify genes"
+    image: "dleehr/glimmer"
+    infiles:
+      CONT_INPUT_CONTIGS_FILE: '/Users/dcl9/Data/mmap-docker/assembled/MMAP_example-contigs.fasta'
+    outfiles:
+      CONT_OUTPUT_ORFS_FILE: '/Users/dcl9/Data/mmap-docker/genes/MMAP_example-genes.glimmer'
+  -
     name: "Fetch Annotations"
     image: "dleehr/go-blast"
     infiles:
-      CONT_INPUT_ORFS_FILE: '/Users/dcl9/Data/mmap/example/MMAP_example.glimmer'
+      CONT_INPUT_ORFS_FILE: '/Users/dcl9/Data/mmap-docker/genes/MMAP_example-genes.glimmer'
       CONT_INPUT_BLAST_DB: '/Users/dcl9/Data/go-blastdb/go-seqdb'
     outfiles:
-      CONT_OUTPUT_BLAST_RESULTS: '/Users/dcl9/Data/output/pipelined-blast.csv'
+      CONT_OUTPUT_BLAST_RESULTS: '/Users/dcl9/Data/mmap-docker/goterms/pipelined-blast.csv'
