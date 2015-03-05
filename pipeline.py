@@ -1,6 +1,7 @@
 from docker.client import Client
 from docker.utils import kwargs_from_env
 from collections import defaultdict
+import argparse
 import os
 import yaml
 
@@ -244,4 +245,7 @@ def main(yaml_file):
     p.run()
 
 if __name__ == '__main__':
-    main('mmap.yaml')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('yaml_file', type=argparse.FileType('r'))
+    args = parser.parse_args()
+    main(args.yaml_file.name)
