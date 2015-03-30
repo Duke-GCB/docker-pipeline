@@ -1,6 +1,7 @@
 name:
   MMAP
 host:
+debug: True
 steps: # An ordered list of steps
   -
     name: "Assemble Reads using genovo"
