@@ -4,7 +4,7 @@ host:
 steps: # An ordered list of steps
   -
     name: "Assemble Reads using genovo"
-    image: "dleehr/genovo"
+    image: "dukegcb/genovo"
     infiles:
       CONT_INPUT_READS_FILE: '/Users/dcl9/Data/mmap-docker/raw/MMAP_example.fasta'
     outfiles:
@@ -13,14 +13,14 @@ steps: # An ordered list of steps
       CONT_INPUT_ASSEMBLE_ITERATIONS: '10'
   - 
     name: "Identify genes using glimmer"
-    image: "dleehr/glimmer"
+    image: "dukegcb/glimmer"
     infiles:
       CONT_INPUT_CONTIGS_FILE: '/Users/dcl9/Data/mmap-docker/assembled/MMAP_example-contigs.fasta'
     outfiles:
       CONT_OUTPUT_ORFS_FILE: '/Users/dcl9/Data/mmap-docker/genes/MMAP_example-genes.glimmer'
   -
     name: "Query local Gene Ontology sequence db using BLAST+"
-    image: "dleehr/go-blast"
+    image: "dukegcb/go-blast"
     infiles:
       CONT_INPUT_ORFS_FILE: '/Users/dcl9/Data/mmap-docker/genes/MMAP_example-genes.glimmer'
       CONT_INPUT_BLAST_DB: '/Users/dcl9/Data/go-blastdb/go-seqdb'
@@ -28,7 +28,7 @@ steps: # An ordered list of steps
       CONT_OUTPUT_BLAST_RESULTS: '/Users/dcl9/Data/mmap-docker/annotations/MMAP_example-blast_annotations.csv'
   -
     name: "Extract GO Terms from BLAST output"
-    image: "dleehr/extract-go-terms"
+    image: "dukegcb/extract-go-terms"
     infiles:
       CONT_INPUT_BLAST_RESULTS_FILE: '/Users/dcl9/Data/mmap-docker/annotations/MMAP_example-blast_annotations.csv'
     outfiles:
