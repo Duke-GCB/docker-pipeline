@@ -9,7 +9,7 @@ import yaml
 
 
 class Pipeline():
-    def __init__(self, name, host=None, steps=[], debug=False):
+    def __init__(self, name, host=None, steps=[], debug=False, pull_images=True):
         if name is None:
             raise TypeError('Must provide a name for the pipeline')
         self.name = name
@@ -17,6 +17,7 @@ class Pipeline():
         self.steps = steps
         self.debug = debug
         self.client = Pipeline.get_client()
+        self.pull_images = pull_images
         self.remove_containers = False
         self.result = None
 
@@ -56,6 +57,8 @@ class Pipeline():
         if self.debug:
             print "Running pipeline: {}".format(self)
         for each_step in self.steps:
+            if self.pull_images:
+                self.pull_image(each_step)
             container = self.create_container(each_step)
             self.start_container(container, each_step)
             self.result = self.get_result(container, each_step)
@@ -67,6 +70,13 @@ class Pipeline():
                 break
         if self.debug:
             print 'Result: {}'.format(self.result)
+
+    def pull_image(self, step):
+        if self.debug:
+            print 'Pulling image for step: {}'.format(step)
+        image_result = self.client.pull(step.image)
+        if self.debug:
+            print image_result
 
     def create_container(self, step):
         if self.debug:
