@@ -1,4 +1,4 @@
-# docker-pipeline
+# docker-pipeline [![Circle CI](https://circleci.com/gh/Duke-GCB/docker-pipeline/tree/master.svg?style=svg)](https://circleci.com/gh/Duke-GCB/docker-pipeline/tree/master)
 Python tool to run docker containers in sequence
 
 Installing
