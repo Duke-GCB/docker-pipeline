@@ -37,7 +37,9 @@ class Pipeline():
             steps.append(step)
         name = pipeline_dict['name']
         host = pipeline_dict['host']
-        return cls(name, host=host, steps=steps, debug=True)
+        debug = pipeline_dict['debug'] or False
+        pull_images = pipeline_dict['pull_images'] or False
+        return cls(name, host=host, steps=steps, debug=debug, pull_images=pull_images)
 
     @classmethod
     def from_yaml(cls, file):
