@@ -6,7 +6,7 @@ from collections import defaultdict
 import argparse
 import os
 import yaml
-
+import tag_handlers
 
 class Pipeline():
     def __init__(self, name, host=None, steps=[], debug=False, pull_images=True):
@@ -255,6 +255,9 @@ class Step():
 
 
 def main(yaml_file):
+    var_map = defaultdict(lambda: None)
+    # TODO: Populate vars
+    tag_handlers.configure(var_map)
     p = Pipeline.from_yaml(yaml_file)
     p.run()
 
