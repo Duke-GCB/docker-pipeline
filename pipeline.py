@@ -254,15 +254,24 @@ class Step():
         return environment
 
 
-def main(yaml_file):
-    var_map = defaultdict(lambda: None)
-    # TODO: Populate vars
+def main(yaml_file, var_map):
     tag_handlers.configure(var_map)
     p = Pipeline.from_yaml(yaml_file)
     p.run()
 
+
+def extract_var_map(leftovers):
+    d = defaultdict(lambda: None)
+    for leftover in leftovers:
+        k, v = leftover.split('=')
+        d[k] = v
+    return d
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('yaml_file', type=argparse.FileType('r'))
-    args = parser.parse_args()
-    main(args.yaml_file.name)
+    parser.add_argument_group()
+    args, leftovers = parser.parse_known_args()
+    var_map = extract_var_map(leftovers)
+    main(args.yaml_file.name, var_map)
