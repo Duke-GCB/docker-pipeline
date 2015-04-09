@@ -45,7 +45,22 @@ def configure(var_map):
         seq[0] = os.path.splitext(seq[0])[0]
         return '.'.join(seq)
 
+    def base(loader, node):
+        """
+        YAML Tag handler to get base name of a file
+        :param loader: YAML Loader
+        :param node: Node, can be sequence or scalar. File name in full path
+        :return: The file name from a path
+        """
+        try:
+            seq = loader.construct_sequence(node)
+        except ConstructorError as e:
+            seq = loader.construct_scalar(node).split()
+        path = seq[0]
+        return os.path.basename(path)
+
     # Register tag handlers
     yaml.add_constructor('!join', join)
     yaml.add_constructor('!var', interpret_var)
     yaml.add_constructor('!change_ext', change_ext)
+    yaml.add_constructor('!base', base)
