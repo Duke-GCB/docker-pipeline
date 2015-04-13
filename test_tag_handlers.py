@@ -6,7 +6,7 @@ from tag_handlers import configure
 
 class TagHandlersTestCase(unittest.TestCase):
     def setUp(self):
-        self.var_map = {'VAR1': 'val1', 'VAR2': 'val2'}
+        self.var_map = {'VAR1': 'val1', 'VAR2': 'val2', 'FILE1': '/data/file.raw'}
         configure(self.var_map)
         self.loaded = None
 
@@ -21,7 +21,7 @@ class TagHandlersTestCase(unittest.TestCase):
         Test variable interpolation
         """
         self.load('k: !var VAR1')
-        self.expect({'k': self.var_map['VAR1']}, 'Variable interpolation with !var failed')
+        self.expect({'k': 'val1'}, 'Variable interpolation with !var failed')
 
     def test_join(self):
         """
@@ -48,8 +48,8 @@ class TagHandlersTestCase(unittest.TestCase):
         """
         Test join and var
         """
-        self.load('k: !join [!var VAR1, !var VAR2]')
-        self.expect({'k': 'val1val2'}, 'Combining !join and !var')
+        self.load('k: !join [!var FILE1, .zip]')
+        self.expect({'k': '/data/file.raw.zip'}, 'Combining !join and !var')
 
     def test_change_ext_and_base(self):
         """
@@ -58,5 +58,11 @@ class TagHandlersTestCase(unittest.TestCase):
         self.load('k: !change_ext [!base /path/to/file.abc, def]')
         self.expect({'k': 'file.def'}, 'Combining !change_ext and !base')
 
+    def test_all(self):
+        """
+        Test all tags
+        """
+        self.load('k: !join [a,/,!var VAR2,/, !base [!change_ext [!var FILE1, new]]]')
+        self.expect({'k': 'a/val2/file.new'}, 'Combining all tags')
 if __name__ == '__main__':
     unittest.main()
