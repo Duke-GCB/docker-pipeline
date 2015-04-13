@@ -1,14 +1,16 @@
 __author__ = 'dcl9'
 
 import unittest
-from pipeline import Step
+from pipeline import Step, extract_var_map
+
 
 class StepTestCase(unittest.TestCase):
 
     def setUp(self):
         self.name = 'Test Step'
         self.image = 'docker/image'
-        self.infiles = {'INPUT_FILE_0': '/path/to/readonly0/input_file.ext', 'INPUT_FILE_1': '/path/to/readonly1/input_file'}
+        self.infiles = {'INPUT_FILE_0': '/path/to/readonly0/input_file.ext',
+                        'INPUT_FILE_1': '/path/to/readonly1/input_file'}
         self.outfiles = {'OUTPUT_FILE': '/path/to/readwrite/output_file.ext'}
         self.expected_binds = {
             '/path/to/readonly0': {'bind': '/mnt/input_0', 'ro': True},
@@ -46,6 +48,10 @@ class StepTestCase(unittest.TestCase):
         step = Step(self.name, self.image, infiles=self.infiles, outfiles=self.outfiles)
         self.assertEqual(step.get_volumes(), self.expected_volumes)
 
+    def test_extract_var_map(self):
+        leftovers = ['FOO=bar', 'BAZ=bat']
+        var_map = extract_var_map(leftovers)
+        self.assertEqual(var_map, {'FOO': 'bar', 'BAZ': 'bat'})
 
 if __name__ == '__main__':
     unittest.main()
