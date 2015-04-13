@@ -47,6 +47,21 @@ class TagHandlersTestCase(unittest.TestCase):
         self.expected = {'k': 'bar'}
         self.check('Getting basename with !base failed')
 
+    def test_join_and_var(self):
+        """
+        Test join and var
+        """
+        self.load('k: !join [!var VAR1, !var VAR2]')
+        self.expected = {'k': 'val1val2'}
+        self.check('Combining !join and !var')
+
+    def test_change_ext_and_base(self):
+        """
+        Test change_ext and base
+        """
+        self.load('k: !change_ext [!base /path/to/file.abc, def]')
+        self.expected = {'k': 'file.def'}
+        self.check('Combining !change_ext and !base')
 
 if __name__ == '__main__':
     unittest.main()
