@@ -1,5 +1,5 @@
 # docker-pipeline [![Circle CI](https://circleci.com/gh/Duke-GCB/docker-pipeline/tree/master.svg?style=svg)](https://circleci.com/gh/Duke-GCB/docker-pipeline/tree/master)
-Python tool to run docker containers in sequence
+Python tool to run docker containers in sequence, for reproducible computational analysis pipelines.
 
 ## Install
 
