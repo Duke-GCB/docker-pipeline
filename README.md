@@ -64,7 +64,10 @@ For example, file names in the above pipeline can be replaced as such:
 
 And this pipeline can be run with:
 
-    python pipeline.py total_size.yaml FILE1=/data/raw/file1 FILE2=/data/raw/file2 RESULTS=/data/step3/total_size
+    python pipeline.py total_size.yaml \
+      FILE1=/data/raw/file1 \
+      FILE2=/data/raw/file2 \
+      RESULTS=/data/step3/total_size
 
 The following tags are available, see [tag_handlers.py](tag_handlers.py) for details:
 
