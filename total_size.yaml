@@ -1,0 +1,25 @@
+name: Demo pipeline - Total size of two files
+debug: True
+steps:
+  -
+    name: Get size of file 1
+    image: dleehr/filesize
+    infiles:
+      CONT_INPUT_FILE: !var FILE1
+    outfiles:
+      CONT_OUTPUT_FILE: /data/step1/size
+  -
+    name: Get size of file 2
+    image: dleehr/filesize
+    infiles:
+      CONT_INPUT_FILE: !var FILE2
+    outfiles:
+      CONT_OUTPUT_FILE: /data/step2/size
+  -
+    name: Add sizes of files
+    image: dleehr/add
+    infiles:
+      CONT_INPUT_FILE1: /data/step1/size
+      CONT_INPUT_FILE2: /data/step2/size
+    outfiles:
+      CONT_OUTPUT_FILE: !var RESULT

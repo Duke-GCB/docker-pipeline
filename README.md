@@ -36,7 +36,7 @@ If the image accepts environment variables, specify these as `infiles`, `outfile
         image: dleehr/add
         infiles:
           CONT_INPUT_FILE1: /data/step1/size
-          CONT_INPUT_FILE1: /data/step2/size
+          CONT_INPUT_FILE2: /data/step2/size
         outfiles:
           CONT_OUTPUT_FILE: /data/step3/total_size
 
