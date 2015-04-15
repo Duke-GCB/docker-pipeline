@@ -129,8 +129,7 @@ class Pipeline():
         all_logs = str()
         for log in logs:
             all_logs = all_logs + log
-            if self.debug:
-                print log
+            print log
         # Store the return value
         code = self.client.wait(container)
         result['code'] = code

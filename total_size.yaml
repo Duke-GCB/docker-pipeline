@@ -1,5 +1,4 @@
 name: Demo pipeline - Total size of two files
-debug: True
 steps:
   -
     name: Get size of file 1
@@ -23,3 +22,4 @@ steps:
       CONT_INPUT_FILE2: /data/step2/size
     outfiles:
       CONT_OUTPUT_FILE: !var RESULT
+
