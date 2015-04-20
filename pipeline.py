@@ -126,6 +126,7 @@ class Pipeline():
     def get_result(self, container, step):
         logs = self.client.attach(container, stream=True, logs=True)
         result = {'image': step.image}
+        print 'step: {}\nimage: {}\n==============='.format(step.name, step.image)
         all_logs = str()
         for log in logs:
             all_logs = all_logs + log
