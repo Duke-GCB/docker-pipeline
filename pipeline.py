@@ -76,7 +76,7 @@ class Pipeline():
         # Using boot2docker instructions for now
         # http://docker-py.readthedocs.org/en/latest/boot2docker/
         # Workaround for requests.exceptions.SSLError: hostname '192.168.59.103' doesn't match 'boot2docker'
-        client = Client(**kwargs_from_env(assert_hostname=False))
+        client = Client(version='auto', **kwargs_from_env(assert_hostname=False))
         return client
 
     def run(self):

@@ -3,6 +3,9 @@ MAINTAINER Dan Leehr <dan.leehr@duke.edu>
 
 RUN apt-get update && apt-get install -y \
   python \
+  python-dev \
+  libffi-dev \
+  libssl-dev \
   python-pip
 
 COPY . /docker-pipeline
