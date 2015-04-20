@@ -1,16 +1,28 @@
 # docker-pipeline [![Circle CI](https://circleci.com/gh/Duke-GCB/docker-pipeline/tree/master.svg?style=svg)](https://circleci.com/gh/Duke-GCB/docker-pipeline/tree/master)
 Python tool to run docker containers in sequence, for reproducible computational analysis pipelines.
 
-## Install
+## Installation
 
+Installing and running via Docker is recommended.
 
-Install dependencies with pip
+### Docker Image
 
-    pip install -r requirements.txt
+1. Pull the docker-pipeline image (Optional, `docker run` will automatically pull the image)
 
+        docker pull dukegcb/docker-pipeline
+
+### Local/Development
+
+1. Clone this GitHub repository
+
+        git clone git@github.com:Duke-GCB/docker-pipeline.git`
+
+2. Install dependencies with pip
+
+        cd docker-pipeline
+        pip install -r requirements.txt
 
 ## Write a Pipeline
-
 
 Pipelines are defined by [YAML](http://yaml.org) files. They specify which Docker images to run, and what files/parameters to provide to containers at runtime them. Each step __must__ specify an image, which can be a name (e.g. `dleehr/filesize`), or an Image ID (`10baa1fc6046`).
 If the image accepts environment variables, specify these as `infiles`, `outfiles`, and `parameters`. More on that below
@@ -44,7 +56,18 @@ Paths to files should be specified as absolute paths on the Docker host. See [Fi
 
 ## Run
 
-    python pipeline.py total_size.yaml
+### Docker
+
+    docker run \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v /path/to/total_size.yaml:/pipeline.yaml:ro \
+      dukegcb/docker-pipeline /pipeline.yaml
+
+Since docker-pipeline creates and starts docker containers, it must have access to `/var/run/docker.sock` on the host. It also must have access to the YAML file, which is mounted as `/pipeline.yaml` in this example.
+
+### Local
+
+    python pipeline.py /path/to/total_size.yaml
 
 ## Advanced Usage
 
