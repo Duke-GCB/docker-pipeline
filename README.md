@@ -15,7 +15,7 @@ Installing and running via Docker is recommended.
 
 1. Clone this GitHub repository
 
-        git clone git@github.com:Duke-GCB/docker-pipeline.git`
+        git clone git@github.com:Duke-GCB/docker-pipeline.git
 
 2. Install dependencies with pip
 
