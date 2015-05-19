@@ -58,10 +58,16 @@ Paths to files should be specified as absolute paths on the Docker host. See [Fi
 
 ### Docker
 
+__Note__: You do not need to clone this repository to run docker-pipeline. You only need a working Docker installation, and the docker-pipeline image will be pulled automatically
+
     docker run \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v /path/to/total_size.yaml:/pipeline.yaml:ro \
       dukegcb/docker-pipeline /pipeline.yaml
+      
+Or using [docker-pipeline.sh](docker-pipeline.sh):
+
+    docker-pipeline.sh /path/to/total_size.yaml
 
 Since docker-pipeline creates and starts docker containers, it must have access to `/var/run/docker.sock` on the host. It also must have access to the YAML file, which is mounted as `/pipeline.yaml` in this example.
 
