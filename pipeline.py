@@ -27,6 +27,7 @@
 from docker.client import Client
 from docker.utils import kwargs_from_env
 from collections import defaultdict
+from check_path_access import can_access
 import argparse
 import os
 import yaml
@@ -78,6 +79,11 @@ class Pipeline():
         # Workaround for requests.exceptions.SSLError: hostname '192.168.59.103' doesn't match 'boot2docker'
         client = Client(version='auto', **kwargs_from_env(assert_hostname=False))
         return client
+
+    def check_volumes(self):
+        # Confirm access to directories
+        for step in self.steps:
+            step.check_volumes()
 
     def run(self):
         if self.debug:
@@ -277,10 +283,22 @@ class Step():
             environment[label] = self.translate_local_to_remote(filename)
         return environment
 
+    def check_volumes(self):
+        print 'checking volumes for {}'.format(self)
+        for path, bind_args in self.binds.items():
+            if bind_args['ro']:
+                perm = 'r'
+            else:
+                perm = 'w'
+            access = can_access(path, perm)
+            if not access:
+                message = 'ERROR: No {0} access to {1}'.format(perm, path)
+                raise Exception(message)
 
 def main(yaml_file, var_map):
     tag_handlers.configure(var_map)
     p = Pipeline.from_yaml(yaml_file)
+    p.check_volumes()
     p.run()
 
 
