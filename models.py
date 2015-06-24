@@ -67,7 +67,7 @@ class Pipeline():
     def check_volumes(self):
         # Confirm access to directories
         for step in self.steps:
-            step.check_volumes()
+            step.check_volumes(self.debug)
 
 
 class Step():
@@ -204,8 +204,9 @@ class Step():
             environment[label] = self.translate_local_to_remote(filename)
         return environment
 
-    def check_volumes(self):
-        print 'checking volumes for {}'.format(self)
+    def check_volumes(self, debug):
+        if debug:
+            print 'checking volumes for {}'.format(self)
         for path, bind_args in self.binds.items():
             if bind_args['ro']:
                 perm = 'r'
