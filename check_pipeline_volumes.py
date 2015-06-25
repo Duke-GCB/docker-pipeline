@@ -25,7 +25,6 @@
 # SOFTWARE.
 
 from models import Pipeline
-from runner import Runner
 from utils import extract_var_map
 import tag_handlers
 import argparse
@@ -34,8 +33,7 @@ import argparse
 def main(yaml_file, var_map):
     tag_handlers.configure(var_map)
     p = Pipeline.from_yaml(yaml_file)
-    runner = Runner(p)
-    runner.run()
+    p.check_volumes()
 
 
 if __name__ == '__main__':
@@ -44,4 +42,8 @@ if __name__ == '__main__':
     parser.add_argument_group()
     args, leftovers = parser.parse_known_args()
     var_map = extract_var_map(leftovers)
-    main(args.yaml_file.name, var_map)
+    try:
+        main(args.yaml_file.name, var_map)
+    except Exception as e:
+        print e.message
+        exit(1)

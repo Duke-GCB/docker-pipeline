@@ -27,7 +27,8 @@
 __author__ = 'dcl9'
 
 import unittest
-from pipeline import Step, extract_var_map
+from models import Step
+from utils import extract_var_map
 
 
 class StepTestCase(unittest.TestCase):
