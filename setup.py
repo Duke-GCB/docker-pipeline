@@ -3,9 +3,8 @@ from distutils.core import setup
 setup(
     name='docker-pipeline',
     version='1.0.0',
-    packages=[''],
-    package_data={'': ['docker-pipeline-wrapper.sh']},
-    include_package_data=True,
+    packages=['docker-pipeline'],
+    scripts=['bin/docker-pipeline-wrapper.sh'],
     url='https://github.com/Duke-GCB/docker-pipeline',
     license='MIT',
     author='dcl9',
