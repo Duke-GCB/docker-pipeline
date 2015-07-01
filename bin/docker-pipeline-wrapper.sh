@@ -13,9 +13,9 @@ fi
 DIR="$(dirname "$(readlink -f "$0")")"
 
 # Specify exact python location - uses 2.7 and doesn't rely on path
-PYTHON_BIN="/usr/local/bin/python"
+PYTHON_BIN=$(which python2.7)
 
-ACCESS=$(sudo -u "#$SUDO_UID" "$PYTHON_BIN" "$DIR/check_pipeline_volumes.py" $@)
+ACCESS=$(sudo -u "#$SUDO_UID" "$PYTHON_BIN" "$DIR/docker-pipeline/check_pipeline_volumes.py" $@)
 if [ $? -ne 0 ]; then
   echo $ACCESS
   exit 1

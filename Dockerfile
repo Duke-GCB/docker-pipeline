@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
   libssl-dev \
   python-pip
 
-COPY . /docker-pipeline
+COPY docker-pipeline /docker-pipeline
 WORKDIR /docker-pipeline
 RUN pip install -r requirements.txt
 ENTRYPOINT ["python", "pipeline.py"]
