@@ -9,13 +9,11 @@ if [ -z "$SUDO_UID" ]; then
   exit 1
 fi
 
-# Get the directory of this script, for paths to python files
-DIR="$(dirname "$(readlink -f "$0")")"
-
 # Specify exact python location - uses 2.7 and doesn't rely on path
 PYTHON_BIN=$(which python2.7)
+SITE_PACKAGES=$($PYTHON_BIN -c "import site;print site.getsitepackages()[0]")
 
-ACCESS=$(sudo -u "#$SUDO_UID" "$PYTHON_BIN" "$DIR/docker-pipeline/check_pipeline_volumes.py" $@)
+ACCESS=$(sudo -u "#$SUDO_UID" "$PYTHON_BIN" "$SITE_PACKAGES/docker-pipeline/check_pipeline_volumes.py" $@)
 if [ $? -ne 0 ]; then
   echo $ACCESS
   exit 1
