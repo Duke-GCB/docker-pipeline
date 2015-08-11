@@ -98,14 +98,14 @@ And this pipeline can be run with:
       FILE2=/data/raw/file2 \
       RESULTS=/data/step3/total_size
 
-The following tags are available, see [tag_handlers.py](tag_handlers.py) for details:
+The following tags are available, see [tag_handlers.py](docker-pipeline/tag_handlers.py) for details:
 
 - `!var`: replace a variable specified on the command-line
 - `!join`: concatenate multiple values into a single string. Useful for building up file paths
 - `!change_ext`: change the extension of a filename
 - `!base`: get the base file name (remove parent directories) from a path
 
-Tags can be chained together. See [test_tag_handlers.py](test_tag_handlers.py) for exmaples. In some cases.
+Tags can be chained together. See [test_tag_handlers.py](docker-pipeline/test_tag_handlers.py) for exmaples. In some cases.
 
 Connecting to Docker
 --------------------
